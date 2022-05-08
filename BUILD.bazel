@@ -1,0 +1,61 @@
+#load("@//build_rules:generic.bzl","host_binary")
+cc_library(
+    name = "8cc-lib",
+    srcs = glob(
+        ["8cc/**/*.c"],
+        exclude = [
+            "8cc/test/**/*.c",
+            "8cc/testmain.c",
+            "8cc/utiltest.c",
+            "8cc/main.c",
+        ],
+    ),
+    hdrs = glob(
+        ["8cc/**/*.h"],
+        exclude = ["8cc/test/*.h"],
+    ) + ["8cc/keyword.inc"],
+    deps = [":ir"],
+    copts = ["-I."]
+)
+
+cc_library(
+    name = "ir",
+    srcs = glob(
+        ["ir/**/*.c"],
+        exclude = ["ir/dump_ir.c"],
+    ),
+    hdrs = glob(["ir/**/*.h"]),
+    copts = ["-I."]
+)
+
+cc_library(
+    name = "target",
+    srcs = glob(["target/*.c"]),
+    hdrs = glob(["target/*.h"]),
+    deps = [":ir"],
+    copts = ["-I."]
+)
+
+cc_binary(
+    name = "8cc",
+    srcs = ["8cc/main.c"],
+    visibility = ["//visibility:public"],
+    deps = [":8cc-lib"],
+    copts = ["-I."]
+)
+
+cc_binary(
+    name = "elc",
+    visibility = ["//visibility:public"],
+    deps = [":target"],
+    copts = ["-I."]
+)
+
+cc_library(
+    name = "libc",
+    hdrs = glob([
+        "libc/**/*.h",
+        "libc/*.h",
+    ]),
+    visibility = ["//visibility:public"],
+)
